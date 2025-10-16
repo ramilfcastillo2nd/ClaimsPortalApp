@@ -46,7 +46,7 @@ const Demo7Layout = ({ children }: { children: ReactNode }) => {
         <Header />
 
         <div className="grow" role="content">
-          {!pathname.includes('/public-profile/') &&
+          {/* {!pathname.includes('/public-profile/') &&
             !pathname.includes('/user-management') &&
             !pathname.includes('/store-client') && (
               <Toolbar>
@@ -90,7 +90,7 @@ const Demo7Layout = ({ children }: { children: ReactNode }) => {
                   </Popover>
                 </ToolbarActions>
               </Toolbar>
-            )}
+            )} */}
           {children}
         </div>
 

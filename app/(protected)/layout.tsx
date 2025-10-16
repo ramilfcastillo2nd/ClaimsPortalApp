@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ScreenLoader } from '@/components/common/screen-loader';
-import { Demo1Layout } from '../components/layouts/demo1/layout';
+//import { Demo1Layout } from '../components/layouts/demo1/layout';
+import { Demo7Layout } from '../components/layouts/demo7/layout';
 
 export default function ProtectedLayout({
   children,
@@ -14,15 +15,31 @@ export default function ProtectedLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    setMounted(true);
+  }, []);
+
+  const hasStoredToken = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return Boolean(
+      localStorage.getItem('accessToken') ||
+        sessionStorage.getItem('accessToken'),
+    );
+  }, [mounted]);
+
+  const isAuthenticated = Boolean(session?.accessToken) || hasStoredToken;
+
+  useEffect(() => {
+    if (mounted && status !== 'loading' && !isAuthenticated) {
       router.push('/signin');
     }
-  }, [status, router]);
+  }, [mounted, status, isAuthenticated, router]);
 
-  if (status === 'loading') {
+  if (!mounted || (status === 'loading' && !hasStoredToken)) {
     return <ScreenLoader />;
   }
 
-  return session ? <Demo1Layout>{children}</Demo1Layout> : null;
+  return isAuthenticated ? <Demo7Layout>{children}</Demo7Layout> : null;
 }

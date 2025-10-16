@@ -16,7 +16,7 @@ const HeaderTopbar = () => {
         <StoreClientTopbar />
       ) : (
         <>
-          <div className="flex items-center gap-2.5 lg:gap-3.5">
+          {/* <div className="flex items-center gap-2.5 lg:gap-3.5">
             <div className="flex flex-col items-end pt-0.5">
               <span className="inline-flex gap-0.5 text-foreground font-medium text-xs uppercase">
                 <Crown className="size-3.5" />
@@ -33,14 +33,14 @@ const HeaderTopbar = () => {
                 <ArrowUp />
               </Link>
             </Button>
-          </div>
+          </div> */}
 
           <div className="border-e border-border h-5 mx-1.5 lg:mx-3"></div>
 
           <UserDropdownMenu
             trigger={
               <div className="cursor-pointer size-[34px] rounded-full inline-flex items-center justify-center relative text-lg font-medium border border-input bg-muted">
-                S
+                {/* S */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="15"

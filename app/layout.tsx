@@ -12,6 +12,7 @@ import { I18nProvider } from '@/providers/i18n-provider';
 import { ModulesProvider } from '@/providers/modules-provider';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
+import { AuthGuard } from '@/components/auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,7 +43,9 @@ export default async function RootLayout({
                 <I18nProvider>
                   <TooltipsProvider>
                     <ModulesProvider>
-                      <Suspense>{children}</Suspense>
+                      {/* <AuthGuard requireAuth={true} redirectTo="/signin"> */}
+                        <Suspense>{children}</Suspense>
+                      {/* </AuthGuard> */}
                       <Toaster />
                     </ModulesProvider>
                   </TooltipsProvider>

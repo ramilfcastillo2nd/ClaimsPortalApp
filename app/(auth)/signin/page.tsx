@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RiErrorWarningFill } from '@remixicon/react';
-import { AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { signIn } from 'next-auth/react';
+import { AlertCircle, Eye, EyeOff, LoaderCircleIcon } from 'lucide-react';
+import { signIn, useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
+import { ApiClient } from '@/lib/auth';
+import { useAuth } from '@/hooks/auth';
 import { Alert, AlertIcon, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,21 +22,41 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { LoaderCircleIcon } from 'lucide-react';
+import { LoadingGuard } from '@/components/auth';
 import { Icons } from '@/components/common/icons';
 import { getSigninSchema, SigninSchemaType } from '../forms/signin-schema';
 
 export default function Page() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Token present in storage?
+  const hasStoredToken = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return Boolean(
+      localStorage.getItem('accessToken') ||
+      sessionStorage.getItem('accessToken'),
+    );
+  }, []);
+
+  // Authenticated if session has accessToken or we have a stored token
+  const isAuthenticated = Boolean(session?.accessToken) || hasStoredToken;
+
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (status !== 'loading' && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [status, isAuthenticated, router]);
+
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(getSigninSchema()),
     defaultValues: {
-      email: 'demo@kt.com',
-      password: 'demo123',
+      email: 'customer@testuser.com',
+      password: 'P@ssw0rd',
       rememberMe: false,
     },
   });
@@ -44,28 +66,89 @@ export default function Page() {
     setError(null);
 
     try {
-      const response = await signIn('credentials', {
-        redirect: false,
+      // Call your API to authenticate
+      const response = await ApiClient.post('/account/login', {
         email: values.email,
         password: values.password,
         rememberMe: values.rememberMe,
       });
 
-      if (response?.error) {
-        const errorData = JSON.parse(response.error);
-        setError(errorData.message);
+      console.log('API response:', response);
+
+      // Check if login was successful and token is available
+      if (response && response.token) {
+        const { token, refreshToken, firstName, lastName } = response;
+
+        // Store tokens based on rememberMe preference
+        if (values.rememberMe) {
+          localStorage.setItem('accessToken', token);
+          localStorage.setItem('firstName', firstName);
+          localStorage.setItem('lastName', lastName);
+          if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+          }
+        } else {
+          sessionStorage.setItem('accessToken', token);
+          localStorage.setItem('firstName', firstName);
+          localStorage.setItem('lastName', lastName);
+          if (refreshToken) {
+            sessionStorage.setItem('refreshToken', refreshToken);
+          }
+        }
+
+        // Optional: Create NextAuth session for additional features
+        try {
+          await signIn('credentials', {
+            redirect: false,
+            email: values.email,
+            password: values.password,
+            accessToken: token,
+          });
+        } catch {
+          console.log('NextAuth session creation failed, but token is stored');
+        }
+        const callbackUrl = new URLSearchParams(window.location.search).get(
+          'callbackUrl',
+        );
+        router.push(callbackUrl || '/dashboard');
       } else {
-        router.push('/');
+        // Handle API response without token or unsuccessful login
+        setError(
+          response.message || 'Login failed. Please check your credentials.',
+        );
       }
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'An unexpected error occurred. Please try again.',
-      );
+    } catch (err: any) {
+      console.error('Login error:', err);
+
+      // Handle different error scenarios
+      if (err.response?.status === 401) {
+        setError('Invalid email or password');
+      } else if (err.response?.status === 429) {
+        setError('Too many login attempts. Please try again later.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'An unexpected error occurred. Please try again.',
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
+  }
+
+  if (status === 'loading' && !hasStoredToken) {
+    return (
+      <LoadingGuard isLoading={true}>
+        <div>Checking authentication...</div>
+      </LoadingGuard>
+    );
+  }
+
+  if (isAuthenticated) {
+    return null;
   }
 
   return (
@@ -202,7 +285,9 @@ export default function Page() {
 
         <div className="flex flex-col gap-2.5">
           <Button type="submit" disabled={isProcessing}>
-            {isProcessing ? <LoaderCircleIcon className="size-4 animate-spin" /> : null}
+            {isProcessing ? (
+              <LoaderCircleIcon className="size-4 animate-spin" />
+            ) : null}
             Continue
           </Button>
         </div>

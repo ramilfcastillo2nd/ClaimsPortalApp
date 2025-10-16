@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { I18N_LANGUAGES, Language } from '@/i18n/config';
 import {
@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import { ApiClient } from '@/lib/auth/api';
+import axiosInstance from '@/lib/auth/axios';
 import { useLanguage } from '@/providers/i18n-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,11 +34,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
+import router from 'next/router';
+import { useAuth } from '@/hooks/auth';
 
 export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
   const { data: session } = useSession();
   const { changeLanguage, language } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const [firstName, setFirstName] = useState(localStorage.getItem('firstName'));
+  const [lastName, setLastName] = useState(localStorage.getItem('lastName'));
 
   const handleLanguage = (lang: Language) => {
     changeLanguage(lang.code);
@@ -45,6 +51,49 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
   const handleThemeToggle = (checked: boolean) => {
     setTheme(checked ? 'dark' : 'light');
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchAccount() {
+      try {
+        // Debug baseURL
+        console.log('Api baseURL:', axiosInstance.defaults.baseURL);
+
+        const res = await ApiClient.get('/account'); // hits /api/account
+        if (cancelled) return;
+
+        console.log('GET /api/account response:', res.data);
+        const profile = res.data;
+        if (profile) {
+          // setFirstName(profile.firstName ?? '');
+          // setLastName(profile.lastName ?? '');
+        }
+      } catch (err: any) {
+        const status = err?.response?.status;
+        console.error('GET /api/account failed:', {
+          status,
+          data: err?.response?.data,
+          baseURL: axiosInstance.defaults.baseURL,
+          url: '/account',
+        });
+        if (status === 401) {
+          // optional: sign out/clear tokens here
+        }
+      }
+    }
+
+    fetchAccount();
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
+
+  const { logout } = useAuth();
+
+  function logOut(): void {
+    logout();
+  }
 
   return (
     <DropdownMenu>
@@ -63,7 +112,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
                 href="/account/home/get-started"
                 className="text-sm text-mono hover:text-primary font-semibold"
               >
-                {session?.user.name || ''}
+                {firstName || ''} {lastName || ''}
               </Link>
               <Link
                 href="mailto:c.fisher@gmail.com"
@@ -81,7 +130,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
         <DropdownMenuSeparator />
 
         {/* Menu Items */}
-        <DropdownMenuItem asChild>
+        {/* <DropdownMenuItem asChild>
           <Link
             href="/public-profile/profiles/default"
             className="flex items-center gap-2"
@@ -89,7 +138,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
             <UserCircle />
             Public Profile
           </Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuItem asChild>
           <Link
             href="/account/home/user-profile"
@@ -104,10 +153,10 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="flex items-center gap-2">
             <Settings />
-            My Account
+            Settings
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="w-48">
-            <DropdownMenuItem asChild>
+            {/* <DropdownMenuItem asChild>
               <Link
                 href="/account/home/get-started"
                 className="flex items-center gap-2"
@@ -142,7 +191,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
                 <Shield />
                 Security
               </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem asChild>
               <Link
                 href="/account/members/teams"
@@ -164,7 +213,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 
-        <DropdownMenuItem asChild>
+        {/* <DropdownMenuItem asChild>
           <Link
             href="https://devs.keenthemes.com"
             className="flex items-center gap-2"
@@ -172,7 +221,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
             <FileText />
             Dev Forum
           </Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         {/* Language Submenu with Radio Group */}
         <DropdownMenuSub>
@@ -243,7 +292,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
             variant="outline"
             size="sm"
             className="w-full"
-            onClick={() => signOut()}
+            onClick={() => logOut()}
           >
             Logout
           </Button>

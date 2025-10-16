@@ -2,10 +2,12 @@ import {
   AlertCircle,
   Award,
   Badge,
+  Banknote,
   Bell,
   Bitcoin,
   Bolt,
   Book,
+  BookUser,
   Briefcase,
   Building,
   CalendarCheck,
@@ -66,6 +68,57 @@ export const MENU_SIDEBAR: MenuConfig = [
   { heading: 'User' },
   {
     title: 'Public Profile',
+    icon: UserCircle,
+    children: [
+      {
+        title: 'Profiles',
+        children: [
+          { title: 'Default', path: '/public-profile/profiles/default' },
+          { title: 'Creator', path: '/public-profile/profiles/creator' },
+          { title: 'Company', path: '/public-profile/profiles/company' },
+          { title: 'NFT', path: '/public-profile/profiles/nft' },
+          { title: 'Blogger', path: '/public-profile/profiles/blogger' },
+          { title: 'CRM', path: '/public-profile/profiles/crm' },
+          {
+            title: 'More',
+            collapse: true,
+            collapseTitle: 'Show less',
+            expandTitle: 'Show 4 more',
+            children: [
+              { title: 'Gamer', path: '/public-profile/profiles/gamer' },
+              { title: 'Feeds', path: '/public-profile/profiles/feeds' },
+              { title: 'Plain', path: '/public-profile/profiles/plain' },
+              { title: 'Modal', path: '/public-profile/profiles/modal' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Projects',
+        children: [
+          { title: '3 Columns', path: '/public-profile/projects/3-columns' },
+          { title: '2 Columns', path: '/public-profile/projects/2-columns' },
+        ],
+      },
+      { title: 'Works', path: '/public-profile/works' },
+      { title: 'Teams', path: '/public-profile/teams' },
+      { title: 'Network', path: '/public-profile/network' },
+      { title: 'Activity', path: '/public-profile/activity' },
+      {
+        title: 'More',
+        collapse: true,
+        collapseTitle: 'Show less',
+        expandTitle: 'Show 3 more',
+        children: [
+          { title: 'Campaigns - Card', path: '/public-profile/campaigns/card' },
+          { title: 'Campaigns - List', path: '/public-profile/campaigns/list' },
+          { title: 'Empty', path: '/public-profile/empty' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Administrationsssss',
     icon: UserCircle,
     children: [
       {
@@ -870,6 +923,33 @@ export const MENU_MEGA: MenuConfig = [
           },
         ],
       },
+    ],
+  },
+  {
+    title: 'Claim',
+    path: '/claim',
+  },
+  {
+    title: 'Customer',
+    path: '/customer',
+  },
+  {
+    title: 'Administration',
+    children: [
+      {
+        title: 'Administration',
+        children: [
+          {
+            children: [
+              {
+                title: 'Change Request',
+                icon: MessageSquare,
+                path: '/administration/changeRequest',
+              }
+            ],
+          }
+        ],
+      }
     ],
   },
   {
