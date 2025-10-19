@@ -7,32 +7,28 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useStoreClient } from '@/app/(protected)/store-client/components/context';
-
+  
 interface IClaimDetailProps {
-  badge?: boolean;
-  logo: string;
-  title: string;
-  total: string;
-  star: string;
-  label?: string;
-  sku?: string;
-  category1?: string;
-  category2?: string;
-  badgeLabel?: string;
+  id: number;
+  zohoDealID: number;
+  claimReference: string;
+  stage: string;
+  vendorName: string;
+  agreementNumber: string;
+  vehicleRegistration: string;
+  agreementStartDate: string;
+  agreementEndDate: string;
+  brokerName: string;
+  queryReason: string;
+  vendorReference: string;
+  ownerName: string;
+  ownerId: string;
+  ownerEmail: string;
+  dealName: string;
+  make: string;
 }
 
-export function ClaimDetail({
-  badge,
-  logo,
-  title,
-  badgeLabel,
-  sku,
-  total,
-  star,
-  label,
-  category1,
-  category2,
-}: IClaimDetailProps) {
+export function ClaimDetail({ id, zohoDealID, claimReference, stage, vendorName, agreementNumber, vehicleRegistration, agreementStartDate, agreementEndDate, brokerName, queryReason, vendorReference, ownerName, ownerId, ownerEmail, dealName, make }: IClaimDetailProps) {
   const { showCartSheet, showProductDetailsSheet } = useStoreClient();
 
   return (
@@ -55,7 +51,7 @@ export function ClaimDetail({
                 className="hover:text-primary text-sm font-medium text-mono leading-5.5"
                 onClick={() => showProductDetailsSheet('productid')}
               >
-                {title}
+                {dealName}
               </Link>
 
               {/* {badge && (
@@ -72,30 +68,26 @@ export function ClaimDetail({
                 shape="circle"
                 className="rounded-full gap-1"
               >
-                <Star
-                  className="text-white -mt-0.5"
-                  style={{ fill: 'currentColor' }}
-                />{' '}
-                {star}
+                {zohoDealID}
               </Badge>
 
               <div className="flex items-center flex-wrap gap-2 lg:gap-4">
                 <span className="text-xs font-normal text-secondary-foreground">
                   Agreement Number:{' '}
                   <span className="text-xs font-medium text-foreground">
-                    {sku}
+                    {agreementNumber}
                   </span>
                 </span>
                 <span className="text-xs font-normal text-secondary-foreground">
                   Claim Reference:{' '}
                   <span className="text-xs font-medium text-foreground">
-                    {category1}
+                    {claimReference}
                   </span>
                 </span>
                 <span className="text-xs font-normal text-secondary-foreground">
                   Stage:{' '}
                   <span className="text-xs font-medium text-foreground">
-                    {category2}
+                    {stage}
                   </span>
                 </span>
               </div>

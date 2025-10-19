@@ -6,3 +6,4 @@ export default function ClaimPage() {
   const { user, session, logout, token } = useAuth();
   return <ClaimList mode="card" />;
 }
+  
