@@ -1,8 +1,13 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { prisma } from '@/lib/prisma';
-import authOptions from '@/app/api/auth/[...nextauth]/auth-options';
+import { NextRequest, NextResponse } from 'next/server';
+import { ApiClient } from '@/lib/auth/api';
 
 export async function GET() {
-  
+    // Proxy to 7166 backend via ApiClient
+    const upstream = await ApiClient.get('/claims');
+    console.log('upstream', upstream);
+    //     Accept: 'application/json',
+    //   },
+    //   params,
+    // }
+    return NextResponse.json(upstream.data);
 }

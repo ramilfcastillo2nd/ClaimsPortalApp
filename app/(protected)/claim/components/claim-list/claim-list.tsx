@@ -17,6 +17,7 @@ import { Card2 } from '@/app/(protected)/store-client/components/common/card2';
 import { Card3 } from '@/app/(protected)/store-client/components/common/card3';
 import { StoreClientFiltersSheet } from '@/app/(protected)/store-client/components/sheets/filters-sheet';
 import { ClaimDetail } from '../claim-detail/claim-detail';
+import axios from '@/lib/auth/axios';
 
 interface IClaimListGridContentItem {
   logo: string;
@@ -157,9 +158,18 @@ export function ClaimList({ mode }: { mode: SearchResultsType }) {
       category2: 'Hiking Boots',
     },
   ];
+  const appApi = axios.create({ baseURL: '/api' });
 
   useEffect(() => {
-
+    appApi
+      .get('/claim')
+      .then((res) => {
+        console.log('res claim list', res);
+      })
+      .catch((e) => console.error('Load claims failed', e))
+      .finally(() => {
+        console.log('Completed claim list request');
+      });
   }, []);
 
   const renderItem = (item: IClaimListGridContentItem, index: number) => {
