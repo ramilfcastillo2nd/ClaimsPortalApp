@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
+import router from 'next/router';
 import { I18N_LANGUAGES, Language } from '@/i18n/config';
 import {
   BetweenHorizontalStart,
@@ -16,8 +17,10 @@ import {
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import { ApiResponse, ICurrentProfileInfo } from '@/types/auth';
 import { ApiClient } from '@/lib/auth/api';
 import axiosInstance from '@/lib/auth/axios';
+import { useAuth } from '@/hooks/auth';
 import { useLanguage } from '@/providers/i18n-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,15 +37,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
-import router from 'next/router';
-import { useAuth } from '@/hooks/auth';
 
 export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
   const { data: session } = useSession();
   const { changeLanguage, language } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [firstName, setFirstName] = useState(localStorage.getItem('firstName'));
-  const [lastName, setLastName] = useState(localStorage.getItem('lastName'));
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLanguage = (lang: Language) => {
     changeLanguage(lang.code);
@@ -54,40 +56,28 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-
-    async function fetchAccount() {
-      try {
-        // Debug baseURL
-        console.log('Api baseURL:', axiosInstance.defaults.baseURL);
-
-        const res = await ApiClient.get('/account'); // hits /api/account
+    setLoading(true);
+    ApiClient.getProfile()
+      .then((res) => {
         if (cancelled) return;
-
-        console.log('GET /api/account response:', res.data);
-        const profile = res.data;
-        if (profile) {
-          // setFirstName(profile.firstName ?? '');
-          // setLastName(profile.lastName ?? '');
-        }
-      } catch (err: any) {
-        const status = err?.response?.status;
-        console.error('GET /api/account failed:', {
-          status,
+        setFirstName(res?.firstName || '');
+        setLastName(res?.lastName || '');
+      })
+      .catch((err) => {
+        console.error('Load profile failed', {
+          status: err?.response?.status,
           data: err?.response?.data,
-          baseURL: axiosInstance.defaults.baseURL,
-          url: '/account',
         });
-        if (status === 401) {
-          // optional: sign out/clear tokens here
-        }
-      }
-    }
-
-    fetchAccount();
-    return () => {
-      cancelled = true;
-    };
+        setFirstName('');
+        setLastName('');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
   }, [session]);
+
+  useEffect(() => {
+  }, [firstName, lastName]);
 
   const { logout } = useAuth();
 

@@ -78,21 +78,12 @@ export function ClaimList() {
       make: String(raw.make ?? raw.vehicle?.make ?? ''),
     });
 
-    // Use '/claim' if your Next route is app/api/claim/route.ts
     ApiClient.get('/claims')
       .then((res) => {
         if (cancelled) return;
-
-        console.log('GET /api/claim raw:', res);
-
         const rawList = toArray(res);
         const list = Array.isArray(rawList) ? rawList : [];
-
         const mapped = list.map(toClaim);
-
-        // Log the value you’re about to set (not the old state)
-        console.log('mapped claims:', mapped);
-
         setClaimItems(mapped);
       })
       .catch((err) => {
@@ -111,9 +102,7 @@ export function ClaimList() {
     };
   }, []);
 
-  // Log AFTER state updates
   useEffect(() => {
-    console.log('claim items (state):', claimItems);
   }, [claimItems]);
 
   const renderItem = (item: IClaimListGridContentItem, index: number) => {

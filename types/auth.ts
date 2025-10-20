@@ -86,3 +86,12 @@ export interface Role {
   name: string;
   permissions: Permission[];
 }
+
+
+export interface ICurrentProfileInfo {
+    email: string;
+    firstName: string;
+    lastName: string;
+    refreshToken: string;
+    token: string;
+  }

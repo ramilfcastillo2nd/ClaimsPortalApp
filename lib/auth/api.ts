@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosInstance from './axios';
-import { ApiResponse } from '@/types/auth';
+import { ApiResponse, ICurrentProfileInfo } from '@/types/auth';
 
 export class ApiClient {
   // Generic requests
@@ -34,8 +34,9 @@ export class ApiClient {
     return this.post('/auth/refresh', { refreshToken });
   }
 
-  static async getProfile() {
-    return this.get('/auth/profile');
+  static async getProfile<ICurrentProfileInfo>() {
+    const response = await this.get<ICurrentProfileInfo>('/account');
+    return response; 
   }
 
   static async updateProfile(data: any) {
