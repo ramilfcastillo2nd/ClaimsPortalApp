@@ -58,9 +58,9 @@ export function MegaMenu() {
           <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Link
-              href={'/customer'} //{homeItem.path || '/'}
+              href={'/profile'} //{homeItem.path || '/'}
               className={cn(linkClass)}
-              data-active={isActive('/customer')} //isActive(homeItem.path) || undefined}
+              data-active={isActive('/profile')} //isActive(homeItem.path) || undefined}
             >
               {customerItem.title}
             </Link>

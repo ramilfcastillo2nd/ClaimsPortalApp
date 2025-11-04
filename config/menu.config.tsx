@@ -930,8 +930,8 @@ export const MENU_MEGA: MenuConfig = [
     path: '/claim',
   },
   {
-    title: 'Customer',
-    path: '/customer',
+    title: 'Profile',
+    path: '/profile',
   },
   {
     title: 'Administration',
