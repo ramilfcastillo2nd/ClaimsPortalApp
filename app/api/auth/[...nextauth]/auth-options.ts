@@ -1,81 +1,58 @@
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import bcrypt from 'bcrypt';
 import { NextAuthOptions, Session, User } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/lib/prisma';
+import { ApiClient } from '@/lib/auth/api';
 
 const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
-    CredentialsProvider({
+     CredentialsProvider({
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
-        rememberMe: { label: 'Remember me', type: 'boolean' },
       },
       async authorize(credentials) {
-        if (!credentials || !credentials.email || !credentials.password) {
-          throw new Error(
-            JSON.stringify({
-              code: 400,
-              message: 'Please enter both email and password.',
-            }),
-          );
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user) {
-          throw new Error(
-            JSON.stringify({
-              code: 404,
-              message: 'User not found. Please register first.',
-            }),
-          );
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password || '',
-        );
-
-        if (!isPasswordValid) {
-          throw new Error(
-            JSON.stringify({
-              code: 401,
-              message: 'Invalid credentials. Incorrect password.',
-            }),
-          );
-        }
-
-        if (user.status !== 'ACTIVE') {
-          throw new Error(
-            JSON.stringify({
-              code: 403,
-              message: 'Account not activated. Please verify your email.',
-            }),
-          );
-        }
-
-        // Update `lastSignInAt` field
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { lastSignInAt: new Date() },
-        });
-
-        return {
-          id: user.id,
-          status: user.status,
-          email: user.email,
-          name: user.name || 'Anonymous',
-          roleId: user.roleId,
-          avatar: user.avatar,
+        // Shape of the login response from the backend
+        type LoginResponse = {
+          id?: string;
+          email?: string;
+          firstName?: string;
+          lastName?: string;
+          token?: string;
+          refreshToken?: string;
+          user?: {
+            id?: string;
+            email?: string;
+            firstName?: string;
+            lastName?: string;
+          };
         };
+
+        // Call your backend login
+        const { data } = await ApiClient.post<LoginResponse>('/account/login', {
+          email: credentials?.email,
+          password: credentials?.password,
+        });
+
+        if (!data) return null;
+        const response: LoginResponse = data;
+
+        // Normalize a user object from response
+        const user = {
+          id: response.user?.id ?? response.id ?? response.email ?? 'user',
+          email: response.email ?? response.user?.email ?? undefined,
+          firstName: response.firstName ?? response.user?.firstName ?? undefined,
+          lastName: response.lastName ?? response.user?.lastName ?? undefined,
+          accessToken: response.token,
+          refreshToken: response.refreshToken,
+          raw: response, // keep entire login response
+        };
+
+        if (!user.accessToken) throw new Error('Login failed: no access token');
+
+        return user as any;
       },
     }),
     GoogleProvider({
@@ -153,51 +130,34 @@ const authOptions: NextAuthOptions = {
     }),
   ],
   session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60,
+    strategy: 'jwt'
   },
   callbacks: {
-    async jwt({
-      token,
-      user,
-      session,
-      trigger,
-    }: {
-      token: JWT;
-      user: User;
-      session?: Session;
-      trigger?: 'signIn' | 'signUp' | 'update';
-    }) {
-      if (trigger === 'update' && session?.user) {
-        token = session.user;
-      } else {
-        if (user && user.roleId) {
-          const role = await prisma.userRole.findUnique({
-            where: { id: user.roleId },
-          });
-
-          token.id = (user.id || token.sub) as string;
-          token.email = user.email;
-          token.name = user.name;
-          token.avatar = user.avatar;
-          token.status = user.status;
-          token.roleId = user.roleId;
-          token.roleName = role?.name;
-        }
+   async jwt({ token, user }) {
+      if (user) {
+        token.accessToken = (user as any).accessToken;
+        token.refreshToken = (user as any).refreshToken;
+        token.loginResponse = (user as any).raw ?? user;
+        // Optional: also copy basic profile fields
+        token.name = [ (user as any).firstName, (user as any).lastName ].filter(Boolean).join(' ') || token.name;
+        token.email = (user as any).email || token.email;
       }
-
       return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.email = token.email;
-        session.user.name = token.name;
-        session.user.avatar = token.avatar;
-        session.user.status = token.status;
-        session.user.roleId = token.roleId;
-        session.user.roleName = token.roleName;
-      }
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string | undefined;
+      session.refreshToken = token.refreshToken as string | undefined;
+      session.loginResponse = token.loginResponse;
+
+      // Optional: expose names on session.user
+      session.user = {
+        ...session.user,
+        email: token.email as string | undefined,
+        name: token.name as string | undefined,
+        firstName: (token as any).firstName ?? (session.user as any)?.firstName,
+        lastName: (token as any).lastName ?? (session.user as any)?.lastName,
+      };
+
       return session;
     },
   },

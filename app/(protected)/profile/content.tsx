@@ -1,35 +1,66 @@
 'use client';
 
-import { RecentUploads } from '@/app/(protected)/public-profile/profiles/default/components/recent-uploads';
-import {
-  BasicSettings,
-  CalendarAccounts,
-  CommunityBadges,
-  Connections,
-  PersonalInfo,
-  StartNow,
-  Work,
-} from './components';
+import { useEffect, useState } from 'react';
+import { ICustomerInfo } from '@/types/auth';
+import { ApiClient } from '@/lib/auth';
+import { useAuthStore } from '@/lib/state/auth-store';
+import { Button } from '@/components/ui/button';
+import { PersonalInfo } from './components';
+import { AddressInfo } from './components/address-info';
 
 export function AccountUserProfileContent() {
+  const loginResponse = useAuthStore((s) => s.loginResponse);
+  const [personalInfo, setPersonalInfo] = useState<any | null>(null);
+  useEffect(() => {
+    ApiClient.getCustomerByAppuserId<ICustomerInfo>(loginResponse?.id || '')
+      .then((res) => {
+        console.log('res', res);
+        setPersonalInfo(res);
+      })
+      .catch((err) => {
+        console.error('Load profile failed', {
+          status: err?.response?.status,
+          data: err?.response?.data,
+        });
+      })
+      .finally(() => {
+      });
+  }, []);
+
+  const saveChanges = () => {
+    ApiClient.updateCustomerByAppuserId(loginResponse?.id || '', personalInfo)
+      .then(() => {
+        console.log('Profile updated successfully');
+      })
+      .catch((err) => {
+        console.error('Update profile failed', {
+          status: err?.response?.status,
+          data: err?.response?.data,
+        });
+      });
+  };
+
+  const onChange = (next: any) => {
+    setPersonalInfo(next);
+  };
+
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 lg:gap-7.5">
       <div className="col-span-1">
-        <div className="grid gap-5 lg:gap-7.5">
-          <PersonalInfo />
-          {/* <BasicSettings title="Basic Settings" />
-          <Work />
-          <CommunityBadges /> */}
+        <div className="grid gap-5 lg:gap-12">
+          <PersonalInfo info={personalInfo} onChange={onChange} />
         </div>
       </div>
-      {/* <div className="col-span-1">
+      <div className="col-span-1">
         <div className="grid gap-5 lg:gap-7.5">
-          <StartNow />
-          <CalendarAccounts />
-          <Connections url="#" />
-          <RecentUploads title="My Files" />
+          <AddressInfo info={personalInfo} onChange={onChange} />
         </div>
-      </div> */}
+      </div>
+      <div className="col-span-1 xl:col-span-2">
+        <div className="flex justify-end">
+          <Button onClick={saveChanges}>Save Changes</Button>
+        </div>
+      </div>
     </div>
   );
 }

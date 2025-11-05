@@ -25,11 +25,12 @@ import { Input } from '@/components/ui/input';
 import { LoadingGuard } from '@/components/auth';
 import { Icons } from '@/components/common/icons';
 import { getSigninSchema, SigninSchemaType } from '../forms/signin-schema';
+import { useAuthStore } from '@/lib/state/auth-store';
 
 export default function Page() {
   const router = useRouter();
   const { data: session, status } = useSession();
-
+  const [loginResponse, setLoginResponse] = useState<unknown | null>(null);
   // Token present in storage?
   const hasStoredToken = useMemo(() => {
     if (typeof window === 'undefined') return false;
@@ -74,7 +75,7 @@ export default function Page() {
       });
 
       console.log('API response:', response);
-
+      useAuthStore.getState().setLogin(response);
       // Check if login was successful and token is available
       if (response && response.token) {
         const { token, refreshToken, firstName, lastName } = response;

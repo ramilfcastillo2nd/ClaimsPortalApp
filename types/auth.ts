@@ -1,5 +1,5 @@
 import { DefaultSession, DefaultUser } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+import { JWT as DefaultJWT } from 'next-auth/jwt';
 import { ReactNode } from 'react';
 
 // Extend NextAuth types
@@ -7,25 +7,19 @@ declare module 'next-auth' {
   interface Session {
     accessToken?: string;
     refreshToken?: string;
-    user: {
-      id: string;
-      roles: string[];
-      permissions?: string[];
-    } & DefaultSession['user'];
-  }
-
-  interface User extends DefaultUser {
-    roles: string[];
-    permissions?: string[];
+    loginResponse: any;
+    user: DefaultSession['user'] & {
+      firstName?: string;
+      lastName?: string;
+    };
   }
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT {
+  interface JWT extends DefaultJWT {
     accessToken?: string;
     refreshToken?: string;
-    roles: string[];
-    permissions?: string[];
+    loginResponse?: any;
   }
 }
 
@@ -89,9 +83,30 @@ export interface Role {
 
 
 export interface ICurrentProfileInfo {
-    email: string;
-    firstName: string;
-    lastName: string;
-    refreshToken: string;
-    token: string;
-  }
+  email: string;
+  firstName: string;
+  lastName: string;
+  refreshToken: string;
+  token: string;
+}
+
+export interface ICustomerInfo {
+  id: number;
+  customerID: string;
+  zohoContactID: string;
+  customerReference: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  previousName: string;
+  status: string;
+  email: string;
+  mobile: string;
+  streetName: string;
+  streetName2: string;
+  town: string;
+  county: string;
+  postcode: string;
+  city: string;
+}
