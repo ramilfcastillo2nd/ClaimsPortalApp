@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon, Check, SquarePen, X } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,13 +12,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const PersonalInfo = ({
@@ -32,7 +24,6 @@ const PersonalInfo = ({
   const [localInfo, setLocalInfo] = useState<any>(info);
   const [editing, setEditing] = useState<
     | null
-    | 'status'
     | 'customerReference'
     | 'title'
     | 'firstName'
@@ -48,7 +39,6 @@ const PersonalInfo = ({
 
   const startEdit = (
     field:
-      | 'status'
       | 'customerReference'
       | 'title'
       | 'firstName'
@@ -75,72 +65,6 @@ const PersonalInfo = ({
         <Table className="align-middle text-sm text-muted-foreground">
           <TableBody>
             <TableRow>
-              <TableCell className="py-3 text-secondary-foreground font-normal">
-                Status
-              </TableCell>
-
-              <TableCell className="py-3 text-foreground font-normal">
-                {editing === 'status' ? (
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={String(localInfo?.status ?? '')}
-                      onValueChange={(v) =>
-                        setLocalInfo((prev: any) => ({ ...prev, status: v }))
-                      }
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ) : (
-                  localInfo?.status == "Active" && <Badge size="md" variant="success" appearance="light">
-                    {localInfo?.status}
-                  </Badge>
-
-                  || localInfo?.status == "Inactive" && <Badge size="md" variant="warning" appearance="light">
-                    {localInfo?.status}
-                  </Badge>
-                )}
-              </TableCell>
-
-              <TableCell className="py-3 text-center">
-                {editing === 'status' ? (
-                  <div className="flex justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      mode="icon"
-                      onClick={saveEdit}
-                      aria-label="Save"
-                    >
-                      <Check size={16} className="text-green-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      mode="icon"
-                      onClick={cancelEdit}
-                      aria-label="Cancel"
-                    >
-                      <X size={16} className="text-red-600" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    mode="icon"
-                    onClick={() => startEdit('status')}
-                    aria-label="Edit status"
-                  >
-                    <SquarePen size={16} className="text-blue-500" />
-                  </Button>
-                )}
-              </TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell className="py-2 text-secondary-foreground font-normal">
                 Customer Reference
               </TableCell>
@@ -161,37 +85,6 @@ const PersonalInfo = ({
                   </div>
                 ) : (
                   localInfo?.customerReference
-                )}
-              </TableCell>
-              <TableCell className="py-2 text-center">
-                {editing === 'customerReference' ? (
-                  <div className="flex justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      mode="icon"
-                      onClick={saveEdit}
-                      aria-label="Save"
-                    >
-                      <Check size={16} className="text-green-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      mode="icon"
-                      onClick={cancelEdit}
-                      aria-label="Cancel"
-                    >
-                      <X size={16} className="text-red-600" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    mode="icon"
-                    onClick={() => startEdit('customerReference')}
-                    aria-label="Edit customer reference"
-                  >
-                    <SquarePen size={16} className="text-blue-500" />
-                  </Button>
                 )}
               </TableCell>
             </TableRow>

@@ -1,15 +1,18 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserDropdownMenu } from '@/partials/topbar/user-dropdown-menu';
-import { ArrowUp, Crown } from 'lucide-react';
+import { useAuth } from '@/hooks/auth';
 import { Button } from '@/components/ui/button';
 import { StoreClientTopbar } from '@/app/(protected)/store-client/components/common/topbar';
 
 const HeaderTopbar = () => {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
+  function logOut(): void {
+    logout();
+  }
   return (
     <div className="flex items-center flex-wrap gap-2 lg:gap-3.5">
       {pathname.startsWith('/store-client') ? (
@@ -36,11 +39,19 @@ const HeaderTopbar = () => {
           </div> */}
 
           <div className="border-e border-border h-5 mx-1.5 lg:mx-3"></div>
-
-          <UserDropdownMenu
+          <div className="inline-flex items-center justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => logOut()}
+            >
+              Logout
+            </Button>
+          </div>
+          {/* <UserDropdownMenu
             trigger={
               <div className="cursor-pointer size-[34px] rounded-full inline-flex items-center justify-center relative text-lg font-medium border border-input bg-muted">
-                {/* S */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="15"
@@ -56,7 +67,7 @@ const HeaderTopbar = () => {
                 </svg>
               </div>
             }
-          />
+          /> */}
         </>
       )}
     </div>

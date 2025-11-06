@@ -56,7 +56,7 @@ export class ApiClient {
     return this.get('/claims', { params });
   }
 
-  static async getClaimById(id: string) {
+  static async getClaimById(id: number | string) {
     return this.get(`/claims/${id}`);
   }
 

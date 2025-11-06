@@ -7,17 +7,14 @@ import { cn } from '@/lib/utils';
 import { useMenu } from '@/hooks/use-menu';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import { MegaMenuSubAdministration } from '@/app/components/partials/mega-menu/mega-menu-sub-administration';
 
 export function MegaMenu() {
   const pathname = usePathname();
-  const { isActive, hasActiveChild } = useMenu(pathname);
+  const { isActive } = useMenu(pathname);
   const homeItem = MENU_MEGA[0];
   const claimItem = MENU_MEGA[2];
   const customerItem = MENU_MEGA[3];

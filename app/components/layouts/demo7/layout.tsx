@@ -1,23 +1,13 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { addDays, format } from 'date-fns';
-import { CalendarDays, Download } from 'lucide-react';
+import { addDays } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useBodyClass } from '@/hooks/use-body-class';
 import { useSettings } from '@/providers/settings-provider';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { Footer } from './components/footer';
 import { Header } from './components/header';
-import { Toolbar, ToolbarActions, ToolbarHeading } from './components/toolbar';
 
 const Demo7Layout = ({ children }: { children: ReactNode }) => {
   const { setOption } = useSettings();

@@ -44,7 +44,7 @@ const HeaderLogo = () => {
         </Link>
 
         <h3 className="text-mono text-lg font-medium hidden lg:block">
-          Metronic
+          Customer Portal
         </h3>
       </div>
 

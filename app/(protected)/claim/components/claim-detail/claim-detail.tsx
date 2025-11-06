@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { BadgeInfo, ShoppingCart, Star } from 'lucide-react';
-import { toAbsoluteUrl } from '@/lib/helpers';
-import { Badge } from '@/components/ui/badge';
+import { BadgeInfo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useStoreClient } from '@/app/(protected)/store-client/components/context';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useState } from 'react';
+import { ClaimDetailsEdit } from '../claim-details-edit/claim-details-edit';
   
 interface IClaimDetailProps {
   id: number;
@@ -28,49 +29,25 @@ interface IClaimDetailProps {
   make: string;
 }
 
-export function ClaimDetail({ id, zohoDealID, claimReference, stage, vendorName, agreementNumber, vehicleRegistration, agreementStartDate, agreementEndDate, brokerName, queryReason, vendorReference, ownerName, ownerId, ownerEmail, dealName, make }: IClaimDetailProps) {
-  const { showCartSheet, showProductDetailsSheet } = useStoreClient();
-
+export function ClaimDetail({ id, claimReference, stage, vendorName, agreementNumber, vehicleRegistration, queryReason, ownerName, ownerEmail, dealName }: IClaimDetailProps) {
+  //const { showProductDetailsSheet } = useStoreClient();
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <CardContent className="flex items-center flex-wrap justify-between p-2 pe-5 gap-4.5">
         <div className="flex items-center gap-3.5">
-          {/* <Card className="flex items-center justify-center bg-accent/50 h-[70px] w-[90px] shadow-none">
-            <img
-              src={toAbsoluteUrl(`/media/store/client/600x600/${logo}`)}
-              className="h-[70px] cursor-pointer"
-              onClick={() => showProductDetailsSheet('productid')}
-              alt="image"
-            />
-          </Card> */}
-
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5 -mt-1">
               <Link
                 href="#"
                 className="hover:text-primary text-sm font-medium text-mono leading-5.5"
-                onClick={() => showProductDetailsSheet('productid')}
+                onClick={() => setOpen(true)}
               >
                 {dealName}
               </Link>
-
-              {/* {badge && (
-                <Badge size="sm" variant="destructive" className="uppercase">
-                  save {badgeLabel}%
-                </Badge>
-              )} */}
             </div>
 
             <div className="flex items-center flex-wrap gap-3">
-              <Badge
-                size="sm"
-                variant="warning"
-                shape="circle"
-                className="rounded-full gap-1"
-              >
-                {zohoDealID}
-              </Badge>
-
               <div className="flex items-center flex-wrap gap-2 lg:gap-4">
                 <span className="text-xs font-normal text-secondary-foreground">
                   Agreement Number:{' '}
@@ -96,13 +73,26 @@ export function ClaimDetail({ id, zohoDealID, claimReference, stage, vendorName,
         </div>
 
         <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            className="ms-2 shrink-0"
-            onClick={showCartSheet}
-          >
-            <BadgeInfo /> View Details
-          </Button>
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="ms-2 shrink-0">
+                <BadgeInfo /> View Details
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="!max-w-none sm:!max-w-none w-screen sm:w-[900px] md:w-[1100px] lg:w-[1280px] 2xl:w-[1400px] h-full overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Claim Details</SheetTitle>
+                <SheetDescription>Quick overview of the claim details</SheetDescription>
+              </SheetHeader>
+
+              <ClaimDetailsEdit id={id} />
+
+              <div className="mt-3 flex justify-end gap-2">
+                <Button variant="secondary" onClick={() => setOpen(false)}>Close</Button>
+                <Button onClick={() => setOpen(false)}>Save Changes</Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </CardContent>
     </Card>

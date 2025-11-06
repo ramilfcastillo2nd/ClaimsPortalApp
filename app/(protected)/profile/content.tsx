@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/state/auth-store';
 import { Button } from '@/components/ui/button';
 import { PersonalInfo } from './components';
 import { AddressInfo } from './components/address-info';
+import PreviousAddress from './components/previous-address';
 
 export function AccountUserProfileContent() {
   const loginResponse = useAuthStore((s) => s.loginResponse);
@@ -54,6 +55,11 @@ export function AccountUserProfileContent() {
       <div className="col-span-1">
         <div className="grid gap-5 lg:gap-7.5">
           <AddressInfo info={personalInfo} onChange={onChange} />
+        </div>
+      </div>
+      <div className="col-span-1">
+        <div className="grid gap-5 lg:gap-7.5">
+          <PreviousAddress />
         </div>
       </div>
       <div className="col-span-1 xl:col-span-2">
