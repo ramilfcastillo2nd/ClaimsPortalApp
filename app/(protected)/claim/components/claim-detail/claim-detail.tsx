@@ -1,14 +1,22 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { BadgeInfo } from 'lucide-react';
+import { ApiClient } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { useStoreClient } from '@/app/(protected)/store-client/components/context';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useState } from 'react';
 import { ClaimDetailsEdit } from '../claim-details-edit/claim-details-edit';
-  
+
 interface IClaimDetailProps {
   id: number;
   zohoDealID: number;
@@ -29,9 +37,38 @@ interface IClaimDetailProps {
   make: string;
 }
 
-export function ClaimDetail({ id, claimReference, stage, vendorName, agreementNumber, vehicleRegistration, queryReason, ownerName, ownerEmail, dealName }: IClaimDetailProps) {
+export function ClaimDetail({
+  id,
+  claimReference,
+  stage,
+  vendorName,
+  agreementNumber,
+  vehicleRegistration,
+  queryReason,
+  ownerName,
+  ownerEmail,
+  dealName,
+}: IClaimDetailProps) {
   //const { showProductDetailsSheet } = useStoreClient();
   const [open, setOpen] = useState(false);
+  const [claimsInfo, setClaimsInfo] = useState<any>(null);
+  const onChange = (next: any) => {
+    setClaimsInfo(next);
+  };
+
+  const saveChanges = () => {
+    ApiClient.updateClaim(id, claimsInfo)
+      .then(() => {
+        console.log('Claim updated successfully');
+      })
+      .catch((err) => {
+        console.error('Update claim failed', {
+          status: err?.response?.status,
+          data: err?.response?.data,
+        });
+      });
+  };
+
   return (
     <Card>
       <CardContent className="flex items-center flex-wrap justify-between p-2 pe-5 gap-4.5">
@@ -79,17 +116,24 @@ export function ClaimDetail({ id, claimReference, stage, vendorName, agreementNu
                 <BadgeInfo /> View Details
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="!max-w-none sm:!max-w-none w-screen sm:w-[900px] md:w-[1100px] lg:w-[1280px] 2xl:w-[1400px] h-full overflow-y-auto">
+            <SheetContent
+              side="right"
+              className="!max-w-none sm:!max-w-none w-screen sm:w-[900px] md:w-[1100px] lg:w-[1280px] 2xl:w-[1400px] h-full overflow-y-auto"
+            >
               <SheetHeader>
                 <SheetTitle>Claim Details</SheetTitle>
-                <SheetDescription>Quick overview of the claim details</SheetDescription>
+                <SheetDescription>
+                  Quick overview of the claim details
+                </SheetDescription>
               </SheetHeader>
 
-              <ClaimDetailsEdit id={id} />
+              <ClaimDetailsEdit id={id} onChange={onChange} />
 
               <div className="mt-3 flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => setOpen(false)}>Close</Button>
-                <Button onClick={() => setOpen(false)}>Save Changes</Button>
+                <Button variant="secondary" onClick={() => setOpen(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => saveChanges()}>Save Changes</Button>
               </div>
             </SheetContent>
           </Sheet>

@@ -64,7 +64,7 @@ export class ApiClient {
     return this.post('/claims', data);
   }
 
-  static async updateClaim(id: string, data: any) {
+  static async updateClaim(id: number, data: any) {
     return this.put(`/claims/${id}`, data);
   }
 

@@ -14,12 +14,20 @@ import {
 } from '@/components/ui/popover';
 import { RecentUploads } from '@/app/(protected)/public-profile/profiles/default/components';
 
-export function ClaimDetailsEdit({ id }: { id: number }) {
+export function ClaimDetailsEdit({
+  id,
+  onChange,
+}: {
+  id: number;
+  onChange?: (next: any) => void;
+}) {
   const [localInfo, setLocalInfo] = useState<any>({});
   useEffect(() => {
+    console.log('id', 3);
     ApiClient.getClaimById(id).then((data) => {
       console.log('Claim data', data);
       setLocalInfo(data);
+      onChange?.(data);
     });
   }, [id]);
 
@@ -62,9 +70,9 @@ export function ClaimDetailsEdit({ id }: { id: number }) {
     setEditing(null);
   };
 
-  const onChange = (next: any) => {
-    setLocalInfo(next);
-  };
+  // const onChange = (next: any) => {
+  //   setLocalInfo(next);
+  // };
   return (
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 mt-4 text-sm">
       <div className="xl:col-span-8 space-y-3">
