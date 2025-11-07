@@ -23,9 +23,7 @@ export function ClaimDetailsEdit({
 }) {
   const [localInfo, setLocalInfo] = useState<any>({});
   useEffect(() => {
-    console.log('id', 3);
     ApiClient.getClaimById(id).then((data) => {
-      console.log('Claim data', data);
       setLocalInfo(data);
       onChange?.(data);
     });

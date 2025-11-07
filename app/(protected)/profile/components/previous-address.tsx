@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -8,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { IPreviousAddress } from '@/types/previousaddress';
 
 const subscriptions = [
   {
@@ -52,52 +54,41 @@ const subscriptions = [
   },
 ];
 
-export default function PreviousAddress() {
+export default function PreviousAddress({previousAddresses}: {previousAddresses: IPreviousAddress[]}) {
   return (
-    <Table>
-      <TableCaption>A list of your active and past subscriptions.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[120px]">Ref ID</TableHead>
-          <TableHead>Customer Name</TableHead>
-          <TableHead>Plan</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Renewal Date</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {subscriptions.map((sub) => (
-          <TableRow key={sub.subscriptionId}>
-            <TableCell className="font-medium">{sub.subscriptionId}</TableCell>
-            <TableCell>{sub.customerName}</TableCell>
-            <TableCell>{sub.plan}</TableCell>
-            <TableCell>
-              <span
-                className={`${sub.status === 'Active' ? 'text-green-600' : sub.status === 'Cancelled' ? 'text-red-600' : 'text-yellow-600'}`}
-              >
-                {sub.status}
-              </span>
-            </TableCell>
-            <TableCell>{sub.renewalDate}</TableCell>
-            <TableCell className="text-right">{sub.amount}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={5}>Total Revenue</TableCell>
-          <TableCell className="text-right">
-            {subscriptions
-              .filter((sub) => sub.status === 'Active')
-              .reduce((total, sub) => total + parseFloat(sub.amount.slice(1)), 0)
-              .toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-              })}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+    <Card className="min-w-full">
+      <CardHeader>
+        <CardTitle>Previous Addresses</CardTitle>
+      </CardHeader>
+      <CardContent className="kt-scrollable-x-auto pb-3 p-0">
+        <Table>
+          <TableCaption>
+            A list of your active and past addresses.
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Street Name</TableHead>
+              <TableHead>Street Name 2</TableHead>
+              <TableHead>Town</TableHead>
+              <TableHead>County</TableHead>
+              <TableHead>Postal Code</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {previousAddresses.map((sub) => (
+              <TableRow key={sub.id}>
+                <TableCell className="font-medium">
+                  {sub.streetName}
+                </TableCell>
+                <TableCell>{sub.streetName2}</TableCell>
+                <TableCell>{sub.town}</TableCell>          
+                <TableCell>{sub.city}</TableCell>
+                <TableCell>{sub.postcode}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

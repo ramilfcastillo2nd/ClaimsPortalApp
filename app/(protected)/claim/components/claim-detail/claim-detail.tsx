@@ -14,7 +14,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useStoreClient } from '@/app/(protected)/store-client/components/context';
 import { ClaimDetailsEdit } from '../claim-details-edit/claim-details-edit';
 
 interface IClaimDetailProps {

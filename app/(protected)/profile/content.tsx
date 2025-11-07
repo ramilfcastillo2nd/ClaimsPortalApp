@@ -1,18 +1,41 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ICustomerInfo } from '@/types/auth';
 import { ApiClient } from '@/lib/auth';
 import { useAuthStore } from '@/lib/state/auth-store';
 import { Button } from '@/components/ui/button';
 import { PersonalInfo } from './components';
 import { AddressInfo } from './components/address-info';
 import PreviousAddress from './components/previous-address';
+import { ICustomerInfo } from '@/types/customerinfo';
+import { IPreviousAddress } from '@/types/previousaddress';
 
 export function AccountUserProfileContent() {
   const loginResponse = useAuthStore((s) => s.loginResponse);
   const [personalInfo, setPersonalInfo] = useState<any | null>(null);
+  const [previousAddresses, setPreviousAddresses] = useState<any | null>([]);
   useEffect(() => {
+    loadCustomerInfo();
+    loadPreviousAddresses();
+  }, [personalInfo]);
+
+  const loadPreviousAddresses = () => {
+       ApiClient.getPreviousAddressesByCustomerId(personalInfo?.customerID || '')
+      .then((res) => {
+        console.log('res previous', res);
+        setPreviousAddresses(res);
+      })
+      .catch((err) => {
+        console.error('Load previous addresses failed', {
+          status: err?.response?.status,
+          data: err?.response?.data,
+        });
+      })
+      .finally(() => {
+      });
+  };
+
+  const loadCustomerInfo = () => {  
     ApiClient.getCustomerByAppuserId<ICustomerInfo>(loginResponse?.id || '')
       .then((res) => {
         console.log('res', res);
@@ -26,7 +49,7 @@ export function AccountUserProfileContent() {
       })
       .finally(() => {
       });
-  }, []);
+  };
 
   const saveChanges = () => {
     ApiClient.updateCustomerByAppuserId(loginResponse?.id || '', personalInfo)
@@ -54,12 +77,12 @@ export function AccountUserProfileContent() {
       </div>
       <div className="col-span-1">
         <div className="grid gap-5 lg:gap-7.5">
-          <AddressInfo info={personalInfo} onChange={onChange} />
+          <PreviousAddress previousAddresses={previousAddresses} />
         </div>
       </div>
       <div className="col-span-1">
         <div className="grid gap-5 lg:gap-7.5">
-          <PreviousAddress />
+          <AddressInfo info={personalInfo} onChange={onChange} />
         </div>
       </div>
       <div className="col-span-1 xl:col-span-2">

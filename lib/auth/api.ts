@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { IPreviousAddress } from '@/types/previousaddress';
 import axiosInstance from './axios';
 import { ApiResponse } from '@/types/auth';
 
@@ -45,6 +46,10 @@ export class ApiClient {
 
   static async updateCustomerByAppuserId(appUserId: string, data: any) {
     return this.put(`/customer/info/${appUserId}`, data);
+  }
+
+  static async getPreviousAddressesByCustomerId(customerId: number) {
+    return this.get<IPreviousAddress[]>(`/previousaddress/customer/${customerId}`);
   }
 
   static async updateProfile(data: any) {
