@@ -9,6 +9,8 @@ import { AddressInfo } from './components/address-info';
 import PreviousAddress from './components/previous-address';
 import { ICustomerInfo } from '@/types/customerinfo';
 import { IPreviousAddress } from '@/types/previousaddress';
+import { RecentUploads } from '../public-profile/profiles/default/components';
+import { ApiResponse } from '@/types/auth';
 
 export function AccountUserProfileContent() {
   const loginResponse = useAuthStore((s) => s.loginResponse);
@@ -16,11 +18,10 @@ export function AccountUserProfileContent() {
   const [previousAddresses, setPreviousAddresses] = useState<any | null>([]);
   useEffect(() => {
     loadCustomerInfo();
-    loadPreviousAddresses();
-  }, [personalInfo]);
+  }, []);
 
-  const loadPreviousAddresses = () => {
-       ApiClient.getPreviousAddressesByCustomerId(personalInfo?.customerID || '')
+  const loadPreviousAddresses = (id: any) => {
+       ApiClient.getPreviousAddressesByCustomerId(id || '')
       .then((res) => {
         console.log('res previous', res);
         setPreviousAddresses(res);
@@ -36,10 +37,11 @@ export function AccountUserProfileContent() {
   };
 
   const loadCustomerInfo = () => {  
-    ApiClient.getCustomerByAppuserId<ICustomerInfo>(loginResponse?.id || '')
+    ApiClient.getCustomerByAppuserId(loginResponse?.id || '')
       .then((res) => {
-        console.log('res', res);
+        console.log('customer info res', res.data);
         setPersonalInfo(res);
+        loadPreviousAddresses(res?.id);
       })
       .catch((err) => {
         console.error('Load profile failed', {
@@ -52,6 +54,11 @@ export function AccountUserProfileContent() {
   };
 
   const saveChanges = () => {
+    updateProfileInfo();
+    updatePreviousAddress();
+  };
+
+  const updateProfileInfo =() => {
     ApiClient.updateCustomerByAppuserId(loginResponse?.id || '', personalInfo)
       .then(() => {
         console.log('Profile updated successfully');
@@ -64,26 +71,47 @@ export function AccountUserProfileContent() {
       });
   };
 
-  const onChange = (next: any) => {
+  const updatePreviousAddress =() => {
+    ApiClient.updatePreviousAddress(personalInfo.id, previousAddresses)
+      .then(() => {
+        console.log('Previous address updated successfully');
+      })
+      .catch((err) => {
+        console.error('Update previous address failed', {
+          status: err?.response?.status,
+          data: err?.response?.data,
+        });
+      });
+  };
+
+  const onChangePersonalInfo = (next: any) => {
     setPersonalInfo(next);
+  };
+
+  const onChangePreviousAddresses = (next: any) => {
+    setPreviousAddresses(next);
   };
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 lg:gap-7.5">
       <div className="col-span-1">
         <div className="grid gap-5 lg:gap-12">
-          <PersonalInfo info={personalInfo} onChange={onChange} />
+          <PersonalInfo info={personalInfo} onChangePersonalInfo={onChangePersonalInfo} />
         </div>
       </div>
       <div className="col-span-1">
         <div className="grid gap-5 lg:gap-7.5">
-          <PreviousAddress previousAddresses={previousAddresses} />
+          <PreviousAddress previousAddresses={previousAddresses} onChangePreviousAddresses={onChangePreviousAddresses} />
         </div>
       </div>
       <div className="col-span-1">
         <div className="grid gap-5 lg:gap-7.5">
-          <AddressInfo info={personalInfo} onChange={onChange} />
+          <AddressInfo info={personalInfo} onChangePersonalInfo={onChangePersonalInfo} />
         </div>
+      </div>
+      
+      <div className="col-span-1">
+        <RecentUploads title="My Files" />
       </div>
       <div className="col-span-1 xl:col-span-2">
         <div className="flex justify-end">

@@ -52,6 +52,10 @@ export class ApiClient {
     return this.get<IPreviousAddress[]>(`/previousaddress/customer/${customerId}`);
   }
 
+  static async updatePreviousAddress(customerId: number, data: any) {
+    return this.put(`/previousaddress/${customerId}`, data);
+  }
+
   static async updateProfile(data: any) {
     return this.put('/auth/profile', data);
   }

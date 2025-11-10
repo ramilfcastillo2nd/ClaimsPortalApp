@@ -9,10 +9,10 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const AddressInfo = ({
   info,
-  onChange,
+  onChangePersonalInfo,
 }: {
   info: any;
-  onChange?: (next: any) => void;
+  onChangePersonalInfo?: (next: any) => void;
 }) => {
   const [localInfo, setLocalInfo] = useState<any>(info);
   const [editing, setEditing] = useState<
@@ -42,7 +42,7 @@ const AddressInfo = ({
     setEditing(null);
   };
   const saveEdit = () => {
-    onChange?.(localInfo);
+    onChangePersonalInfo?.(localInfo);
     setEditing(null);
   };
 
